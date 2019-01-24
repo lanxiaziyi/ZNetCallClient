@@ -27,15 +27,18 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         widget.cpp \
-    zsettingpage.cpp
+    zsettingpage.cpp \
+    dialogsnumber.cpp
 
 HEADERS += \
         widget.h \
-    zsettingpage.h
+    zsettingpage.h \
+    dialogsnumber.h
 
 FORMS += \
         widget.ui \
-    zsettingpage.ui
+    zsettingpage.ui \
+    dialogsnumber.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
