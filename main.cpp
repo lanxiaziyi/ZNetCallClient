@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QSplashScreen splash(t_pixmap);
     splash.show();
 
-    QThread::sleep(6);
+    QThread::sleep(3);
 
     Widget w;
     w.show();
