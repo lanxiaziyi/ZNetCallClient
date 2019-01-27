@@ -28,12 +28,16 @@ SOURCES += \
         main.cpp \
         widget.cpp \
     zsettingpage.cpp \
-    dialogsnumber.cpp
+    dialogsnumber.cpp \
+    titlebar.cpp \
+    zmainwidget.cpp
 
 HEADERS += \
         widget.h \
     zsettingpage.h \
-    dialogsnumber.h
+    dialogsnumber.h \
+    titlebar.h \
+    zmainwidget.h
 
 FORMS += \
         widget.ui \

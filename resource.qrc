@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>lingEr2.jpeg</file>
+        <file>skin/pc/app_icon.png</file>
     </qresource>
 </RCC>

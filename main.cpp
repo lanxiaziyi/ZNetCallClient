@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QSplashScreen>
 #include <QThread>
+#include "zmainwidget.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,9 +12,12 @@ int main(int argc, char *argv[])
     QSplashScreen splash(t_pixmap);
     splash.show();
 
-    QThread::sleep(3);
+   // QThread::sleep(3);
 
-    Widget w;
+    //Widget w;
+    //w.show();
+
+    ZMainWidget w;
     w.show();
 
     splash.finish(&w);

@@ -8,6 +8,9 @@
 找一台centos，装上freeswitch。作为我们的server端。
 至于freeswitch怎么配置，这个话题太大，建议参考《FreeSwitch权威指南》。
 
+## 验证标准
+连上freeswitch，可以用软电话互相呼叫。
+
 # pjsip库的说明
 
 ##windows版
@@ -15,4 +18,7 @@
 
 ##mac版
 使用brew install pjproject安装。
+
+# 参考内容
+[标题栏](http://blog.51cto.com/9291927/2330380)
 
