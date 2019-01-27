@@ -6,12 +6,18 @@ ZMainWidget::ZMainWidget(QWidget *parent)
         :QFrame(parent)
 
 {
-   // setWindowFlags(Qt::Window|Qt::FramelessWindowHint |Qt::WindowSystemMenuHint|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint);//去掉标题栏，边框保留
-    setWindowFlags(Qt::CustomizeWindowHint);
-  // setWindowFlags( (windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowTitleHint);
 
-   // this->setFrameShadow(QFrame::Plain);
+#ifdef Q_OS_MAC
 
+    this->setWindowFlags(Qt::CustomizeWindowHint);
+
+#elif defined Q_OS_WIN
+    // setWindowFlags(Qt::Window|Qt::FramelessWindowHint |Qt::WindowSystemMenuHint|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint);//去掉标题栏，边框保留
+     setWindowFlags(Qt::CustomizeWindowHint);
+   // setWindowFlags( (windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowTitleHint);
+
+     //this->setFrameShadow(QFrame::Plain);
+#endif
 
     m_pTitleBar = new TitleBar(this);
     m_pContenWidget = new QWidget(this);
@@ -19,7 +25,7 @@ ZMainWidget::ZMainWidget(QWidget *parent)
     m_pContenWidget->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 0);"));
 
     m_pLayout = new QVBoxLayout(this);
-   // m_pLayout->addWidget(m_pTitleBar);
+    m_pLayout->addWidget(m_pTitleBar);
     m_pLayout->addWidget(m_pContenWidget);
     m_pLayout->setSpacing(0);
     m_pLayout->setContentsMargins(0,0,0,0);
@@ -30,7 +36,7 @@ ZMainWidget::ZMainWidget(QWidget *parent)
 
     //setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 255);"));
    // this->setStyleSheet(QString::fromUtf8("border:1px solid green"));
-    this->setStyleSheet("QFrame{border: 0px;}");
+   // this->setStyleSheet("QFrame{border: 0px;}");
 }
 
 ZMainWidget::~ZMainWidget()
