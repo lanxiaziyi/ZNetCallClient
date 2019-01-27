@@ -10,7 +10,8 @@ class ZMainWidget : public QFrame
 public:
     ZMainWidget(QWidget *parent = nullptr);
     ~ZMainWidget();
-
+protected:
+ //   void paintEvent(QPaintEvent*);
 private:
     TitleBar *m_pTitleBar = nullptr;//标题栏
     QWidget *m_pContenWidget = nullptr;//内容组件

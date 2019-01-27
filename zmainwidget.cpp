@@ -1,4 +1,6 @@
 #include "zmainwidget.h"
+#include <QStyleOption>
+#include <QPainter>
 
 ZMainWidget::ZMainWidget(QWidget *parent)
         :QFrame(parent)
@@ -6,8 +8,10 @@ ZMainWidget::ZMainWidget(QWidget *parent)
 {
    // setWindowFlags(Qt::Window|Qt::FramelessWindowHint |Qt::WindowSystemMenuHint|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint);//去掉标题栏，边框保留
     setWindowFlags(Qt::CustomizeWindowHint);
+  // setWindowFlags( (windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowTitleHint);
 
-    this->setFrameShadow(QFrame::Sunken);
+   // this->setFrameShadow(QFrame::Plain);
+
 
     m_pTitleBar = new TitleBar(this);
     m_pContenWidget = new QWidget(this);
@@ -15,16 +19,29 @@ ZMainWidget::ZMainWidget(QWidget *parent)
     m_pContenWidget->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 0);"));
 
     m_pLayout = new QVBoxLayout(this);
-    m_pLayout->addWidget(m_pTitleBar);
+   // m_pLayout->addWidget(m_pTitleBar);
     m_pLayout->addWidget(m_pContenWidget);
     m_pLayout->setSpacing(0);
     m_pLayout->setContentsMargins(0,0,0,0);
     this->setLayout(m_pLayout);
-
     this->resize(300,600);
+
+    m_pTitleBar->SetTitleBarIcon(":/skin/pc/app_icon.png");
+
+    //setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 255);"));
+   // this->setStyleSheet(QString::fromUtf8("border:1px solid green"));
+    this->setStyleSheet("QFrame{border: 0px;}");
 }
 
 ZMainWidget::~ZMainWidget()
 {
 
 }
+
+//void ZMainWidget::paintEvent(QPaintEvent *)
+//{
+//    QStyleOption opt;
+//    opt.init(this);
+//    QPainter p(this);
+//    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+//}

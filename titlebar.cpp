@@ -1,5 +1,8 @@
 #include "titlebar.h"
 #include <QDebug>
+#include <QStyleOption>
+#include <QPainter>
+
 TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
 {
     setStyleSheet(QString::fromUtf8("background-color: rgb(0, 255, 0);"));
@@ -179,5 +182,13 @@ void TitleBar::onClicked()
             pWindow->close();
         }
     }
+}
+
+void TitleBar::paintEvent(QPaintEvent *)
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 

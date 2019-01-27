@@ -75,6 +75,7 @@ protected slots:
      */
     void onClicked();
 
+    void paintEvent(QPaintEvent*);
 private:
     QLabel* m_iconLabel;
     QLabel* m_titleLabel;
