@@ -27,6 +27,8 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     m_closeButton = new QPushButton(this);
     m_closeButton->setFixedSize(27, 22);
     m_closeButton->setObjectName("closeButton");
+    m_closeButton->setIcon(QIcon("://skin/pc/close.png"));
+
 
     QHBoxLayout* layout = new QHBoxLayout;
     layout->addWidget(m_iconLabel);
@@ -37,6 +39,9 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     layout->addWidget(m_maximizeButton);
     layout->addWidget(m_closeButton);
     setLayout(layout);
+
+    m_minimizeButton->setHidden(true);
+    m_maximizeButton->setHidden(true);
 
     setProperty("titleBar", true);
     setObjectName("titleBar");

@@ -25,7 +25,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    callingdialognumberpanel.cpp \
+    dialognumberpanel.cpp \
         main.cpp \
+    sipaccountinfo.cpp \
+    switchpanelwidget.cpp \
         widget.cpp \
     zsettingpage.cpp \
     dialogsnumber.cpp \
@@ -33,6 +37,10 @@ SOURCES += \
     zmainwidget.cpp
 
 HEADERS += \
+    callingdialognumberpanel.h \
+    dialognumberpanel.h \
+    sipaccountinfo.h \
+    switchpanelwidget.h \
         widget.h \
     zsettingpage.h \
     dialogsnumber.h \
@@ -40,6 +48,10 @@ HEADERS += \
     zmainwidget.h
 
 FORMS += \
+    callingdialognumberpanel.ui \
+    dialognumberpanel.ui \
+    sipaccountinfo.ui \
+    switchpanelwidget.ui \
         widget.ui \
     zsettingpage.ui \
     dialogsnumber.ui

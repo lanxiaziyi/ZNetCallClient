@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QPixmap t_pixmap("://lingEr2.jpeg");
+    QPixmap t_pixmap("://skin/loading.jpg");
     QSplashScreen splash(t_pixmap);
     splash.show();
 

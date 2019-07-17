@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>lingEr2.jpeg</file>
         <file>skin/pc/app_icon.png</file>
+        <file>skin/loading.jpg</file>
+        <file>skin/pc/close.png</file>
     </qresource>
 </RCC>
