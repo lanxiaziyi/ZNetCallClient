@@ -14,8 +14,9 @@ ZMainWidget::ZMainWidget(QWidget *parent)
 #elif defined Q_OS_WIN
     // setWindowFlags(Qt::Window|Qt::FramelessWindowHint |Qt::WindowSystemMenuHint|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint);//去掉标题栏，边框保留
      setWindowFlags(Qt::CustomizeWindowHint);
-   // setWindowFlags( (windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowTitleHint);
-   // setWindowFlags(Qt::FramelessWindowHint | windowFlags());
+    //setWindowFlags(Qt::SplashScreen);//
+    // setWindowFlags( (windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowTitleHint);
+     // setWindowFlags(Qt::FramelessWindowHint | windowFlags());
      //this->setFrameShadow(QFrame::Plain);
 #endif
 
@@ -50,12 +51,17 @@ ZMainWidget::ZMainWidget(QWidget *parent)
     //setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 255);"));
    // this->setStyleSheet(QString::fromUtf8("border:1px solid green"));
    // this->setStyleSheet("QFrame{border: 0px;}");
+
+    //QWidget *t_pWidget = new QWidget(nullptr);
+    //t_pWidget->show();
+
 }
 
 ZMainWidget::~ZMainWidget()
 {
 
 }
+
 
 //void ZMainWidget::paintEvent(QPaintEvent *)
 //{

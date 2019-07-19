@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 #include "sipaccountinfo.h"
 #include "switchpanelwidget.h"
-
+#include <QSettings>
 
 class ZMainWidget : public QFrame
 {
@@ -15,6 +15,15 @@ public:
     ~ZMainWidget();
 protected:
  //   void paintEvent(QPaintEvent*);
+
+
+
+
+private:
+
+
+
+
 private:
     TitleBar *m_pTitleBar = nullptr;//标题栏
     QWidget *m_pContenWidget = nullptr;//内容组件

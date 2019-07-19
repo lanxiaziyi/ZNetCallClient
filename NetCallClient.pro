@@ -26,11 +26,14 @@ CONFIG += c++11
 
 SOURCES += \
     callingdialognumberpanel.cpp \
+    cmultisipmanager.cpp \
     dialognumberpanel.cpp \
         main.cpp \
     sipaccountinfo.cpp \
     switchpanelwidget.cpp \
+    testmaindialog.cpp \
         widget.cpp \
+    zconfigsettings.cpp \
     zsettingpage.cpp \
     dialogsnumber.cpp \
     titlebar.cpp \
@@ -38,10 +41,14 @@ SOURCES += \
 
 HEADERS += \
     callingdialognumberpanel.h \
+    cmultisipmanager.h \
     dialognumberpanel.h \
+    publicstruct.h \
     sipaccountinfo.h \
     switchpanelwidget.h \
+    testmaindialog.h \
         widget.h \
+    zconfigsettings.h \
     zsettingpage.h \
     dialogsnumber.h \
     titlebar.h \
@@ -52,9 +59,22 @@ FORMS += \
     dialognumberpanel.ui \
     sipaccountinfo.ui \
     switchpanelwidget.ui \
+    testmaindialog.ui \
         widget.ui \
     zsettingpage.ui \
     dialogsnumber.ui
+
+#sip的相关库
+INCLUDEPATH += $$PWD/sipLib/pjsip/include \
+                $$PWD/sipLib/pjnath/include \
+                $$PWD/sipLib/pjmedia/include \
+                $$PWD/sipLib/pjlib-util/include \
+                $$PWD/sipLib/pjlib/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Debug-Dynamic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Release-Dynamic
+
+LIBS += -lWs2_32 -lOle32 -lgdi32
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
