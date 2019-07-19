@@ -14,7 +14,14 @@ public:
     virtual ~CMultiSipManager();
     void SipInit();
 
+    void testRegisterAccount();
+    void testMakeACall();
+
     int testFunc();
+
+private:
+    static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info);
+
 private:
     explicit CMultiSipManager(QObject *parent = nullptr);
     static CMultiSipManager *m_pInstance;

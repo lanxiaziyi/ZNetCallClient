@@ -23,6 +23,11 @@ public slots:
 
     void slotToRunTestFunc();
 
+private slots:
+    void on_pushButton_testRegister_clicked();
+
+    void on_pushButton_testUnRegister_clicked();
+
 private:
     Ui::TestMainDialog *ui;
 };

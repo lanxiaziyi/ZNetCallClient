@@ -166,6 +166,32 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton_testRegister">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>450</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>测试注册</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_testUnRegister">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>480</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>测试注销</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

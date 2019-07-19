@@ -8,7 +8,7 @@ TestMainDialog::TestMainDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->pushButton_testFunc,&QPushButton::clicked,this,&TestMainDialog::slotToRunTestFunc);
-
+    CMultiSipManager::GetInstance();
 }
 
 TestMainDialog::~TestMainDialog()
@@ -25,7 +25,17 @@ void TestMainDialog::toRegisterAccount()
 void TestMainDialog::slotToRunTestFunc()
 {
     qDebug()<<"robin:run TestMainDialog::slotToRunTestFunc";
-    CMultiSipManager::GetInstance()->testFunc();
+   // CMultiSipManager::GetInstance()->testFunc();
 
+
+}
+
+void TestMainDialog::on_pushButton_testRegister_clicked()
+{
+
+}
+
+void TestMainDialog::on_pushButton_testUnRegister_clicked()
+{
 
 }
