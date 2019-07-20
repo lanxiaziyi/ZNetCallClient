@@ -14,13 +14,23 @@ public:
     virtual ~CMultiSipManager();
     void SipInit();
 
-    void testRegisterAccount();
+    void testRegisterAccount();//注册
+    void testUnRegisterAccount();//注销
     void testMakeACall();
 
     int testFunc();
 
 private:
+    void toUnRegisterAllAccounts();//注销所有账户
+
+private:
+    static void on_reg_started2(pjsua_acc_id acc_id, pjsua_reg_info *info);
     static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info);
+    static void on_call_state(pjsua_call_id call_id, pjsip_event *e);
+    static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id,
+                  pjsip_rx_data *rdata);
+    static void on_call_media_state(pjsua_call_id call_id);
+
 
 private:
     explicit CMultiSipManager(QObject *parent = nullptr);

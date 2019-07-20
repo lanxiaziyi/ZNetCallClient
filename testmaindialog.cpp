@@ -32,10 +32,10 @@ void TestMainDialog::slotToRunTestFunc()
 
 void TestMainDialog::on_pushButton_testRegister_clicked()
 {
-
+CMultiSipManager::GetInstance()->testRegisterAccount();
 }
 
 void TestMainDialog::on_pushButton_testUnRegister_clicked()
 {
-
+CMultiSipManager::GetInstance()->testUnRegisterAccount();
 }
