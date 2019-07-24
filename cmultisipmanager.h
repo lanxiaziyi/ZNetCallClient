@@ -20,8 +20,21 @@ public:
 
     int testFunc();
 
+    void toHangUpCall(pjsua_call_id callId);//挂断呼叫
+    void toAnswerCall(pjsua_call_id callId);//应答呼叫
+    void toMakeACall(pjsua_acc_id accoundId,QString targetUrl);// eg: accountId=0,targetUrl= sip:1000@192.168.2.215:2060
+    //
+    int resetAudioCodecPriority();
+
+signals:
+    void sigIncomingInfo(QString t_info);
+    void sigSipInfo(QString t_info);
 private:
     void toUnRegisterAllAccounts();//注销所有账户
+
+
+private:
+    int actualhangUpCall(pjsua_call_id callId, pjsip_inv_session *pInvSession,unsigned st_code);
 
 private:
     static void on_reg_started2(pjsua_acc_id acc_id, pjsua_reg_info *info);

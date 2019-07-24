@@ -28,6 +28,12 @@ private slots:
 
     void on_pushButton_testUnRegister_clicked();
 
+    void on_pushButton_hangupCall_clicked();
+
+    void on_pushButton_answerCall_clicked();
+
+    void on_pushButton_callOut_clicked();
+
 private:
     Ui::TestMainDialog *ui;
 };
