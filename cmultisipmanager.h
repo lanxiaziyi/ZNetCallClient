@@ -22,7 +22,7 @@ public:
 
     void toHangUpCall(pjsua_call_id callId);//挂断呼叫
     void toAnswerCall(pjsua_call_id callId);//应答呼叫
-    void toMakeACall(pjsua_acc_id accoundId,QString targetUrl,QMap<QString,QString> customHeaderInfoMap);// eg: accountId=0,targetUrl= sip:1000@192.168.2.215:2060
+    void toMakeACall(pjsua_acc_id accoundId,QString targetNumber,QMap<QString,QString> customHeaderInfoMap);// eg: accountId=0,targetUrl= sip:1000@192.168.2.215:2060
     //
     int resetAudioCodecPriority();
 
@@ -37,7 +37,7 @@ private:
     int actualhangUpCall(pjsua_call_id callId, pjsip_inv_session *pInvSession,unsigned st_code);
     void initMemoryPool();
     void releaseMemoryPool();
-
+    QString createDstUri(QString t_callNumber,QString accountUri);//根据账户的uri创建被叫的uri
 private:
     static void on_reg_started2(pjsua_acc_id acc_id, pjsua_reg_info *info);
     static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info);

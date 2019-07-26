@@ -90,7 +90,7 @@ void CMultiSipManager::SipInit()
     status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
     if (status != PJ_SUCCESS)
     {
-        qDebug()<<"robin:Error in pjsua_transport_create";
+        qDebug()<<"robin:Error in pjsua_transport_create UDP";
     }
 
     pjsua_transport_config tcp_cfg;
@@ -111,7 +111,7 @@ void CMultiSipManager::SipInit()
     if (status != PJ_SUCCESS)
     {//TLS 这个需要freeswitch 那里的配合;而且一旦使用TLS，用wireshark就不能分析抓到的包了
      //TLS 支持需要pjsip编译的时候添加，我写在文档中了。其实不支持也没关系，至少我们客户端没用到
-        qDebug()<<"robin:Error in pjsua_transport_create tcp";
+        qDebug()<<"robin:Error in pjsua_transport_create tls";
     }
 
 
@@ -122,10 +122,10 @@ void CMultiSipManager::SipInit()
         qDebug()<<"robin:Error in pjsua_start";
     }
 
-    //创建内存池
+    //创建内存池;目前的用处就是自定义呼叫请求头部的时候会用到
     initMemoryPool();
 
-    //设置音频编码优先级
+    //设置音频编码优先级，就是pcma、g729、iLbc的顺序
     resetAudioCodecPriority();
 
 
@@ -135,7 +135,7 @@ void CMultiSipManager::SipInit()
 void CMultiSipManager::testRegisterAccount()
 {
     pj_status_t t_status;
-    pjsua_acc_config acc_cfg;
+    pjsua_acc_config acc_cfg;//每个用户一个acc_cfg
 
     pjsua_acc_config_default(&acc_cfg);
 
@@ -147,17 +147,20 @@ void CMultiSipManager::testRegisterAccount()
     cfg.allow_contact_rewrite = PJ_TRUE;
     cfg.publish_enabled = PJ_TRUE;
     */
-
-    acc_cfg.id = pj_str((char *)"\"SID2018082382631479\" sip:1031@192.168.2.215:2060");
-    acc_cfg.reg_uri = pj_str((char *)"sip:1031");//pj_str((char *)"sip:192.168.2.215:2060");
-    acc_cfg.cred_count = 4;//这里意思，是认证信息的数量，
+    // acc_cfg.id 有两种形式:"sip:account@serviceprovider" or "\"Display Name\" <sip:account@provider>"
+  //  acc_cfg.id = pj_str((char *)"\"SID2018082382631479\" sip:1031@192.168.2.215:2060");
+  //  acc_cfg.reg_uri = pj_str((char *)"sip:192.168.2.215:2060");//客户端是这种形式；pj_str((char *)"sip:1031");但是貌似不对//
+    acc_cfg.id = pj_str((char *)"sip:1031@192.168.2.215:2060");
+    acc_cfg.reg_uri = pj_str((char *)"sip:192.168.2.215:2060");//pj_str((char *)"sip:192.168.2.215:2060");//客户端是这种形式；pj_str((char *)"sip:1031");但是貌似不对//
+    acc_cfg.cred_count = 1;//这里意思，是认证信息的数量.一个就行，但是我试了下多个，反而不行
     acc_cfg.cred_info[0].realm = pj_str((char *)"*");//必须是*，原因看字段注释
     acc_cfg.cred_info[0].scheme = pj_str((char *)"digest");
     acc_cfg.cred_info[0].username = pj_str((char *)"1031");
     acc_cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
     acc_cfg.cred_info[0].data = pj_str((char *)"1234");//密码
 
-    //我们自己还添加了一些奇奇怪怪的字段
+/*
+    //我们自己还添加了一些定制的字段
     //acc_cfg.id 添加了一个SID字段.这里添加的字段，本来应该是“显示名称”的，后来，我们用这个作为"账号拆分"的id识别码用了。
     QString t_strUriParams = ";sid=";
     t_strUriParams += "SID2018082382631479";
@@ -178,10 +181,10 @@ void CMultiSipManager::testRegisterAccount()
 
 
     //这里必须要要写成这样才能设置tcp传输模式//https://trac.pjsip.org/repos/wiki/Using_SIP_TCP
-    //这里需要添加一个变量
+    //这里需要配置文件中添加一个变量，根据变量来
     acc_cfg.proxy[acc_cfg.proxy_cnt++] =  pj_str((char *)"sip:192.168.2.215:2060;transport=tcp");
 
-
+*/
 
 
     acc_cfg.cred_info[1].realm = pj_str((char *)"*");//必须是*，原因看字段注释
@@ -206,7 +209,7 @@ void CMultiSipManager::testRegisterAccount()
     t_status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc_id);
     if (t_status != PJ_SUCCESS)
     {
-        qDebug()<<"robin:Error in pjsua_acc_add";
+        qDebug()<<"robin:Error in pjsua_acc_add:"<<t_status;
     }
 
 }
@@ -417,12 +420,12 @@ void CMultiSipManager::toAnswerCall(pjsua_call_id callId)
     pjsua_call_answer2(callId,&call_setting,200,nullptr,nullptr);
 }
 
-void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri,QMap<QString,QString> customHeaderInfoMap)
+void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetNumber, QMap<QString,QString> customHeaderInfoMap)
 {
     if(-1 == accoundId
-            || 0 == targetUri.length())
+            || 0 == targetNumber.length())
     {
-        qDebug()<<"robin:toMakeACall input error:"<<accoundId<<targetUri;
+        qDebug()<<"robin:toMakeACall input error:"<<accoundId<<targetNumber;
         return;
     }
 
@@ -440,8 +443,8 @@ void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri,QMa
     pjsua_acc_info t_accInfo;
     t_status = pjsua_acc_get_info(accoundId,&t_accInfo);
 
-    QString t_accountUrl = t_accInfo.acc_uri.ptr;
-
+    QString t_accountUrl = t_accInfo.acc_uri.ptr; //
+    QString t_dstUri = createDstUri(targetNumber,t_accountUrl);
 
 
 
@@ -452,7 +455,7 @@ void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri,QMa
     call_setting.vid_cnt = 0; //
 
     char uri[256] = {0};
-    std::string t_targetStr = targetUri.toStdString();
+    std::string t_targetStr = t_dstUri.toStdString();
 
     strncpy_s(uri,sizeof(uri),t_targetStr.c_str(),t_targetStr.length());
     pj_str_t uri2 = pj_str(uri);
@@ -518,6 +521,28 @@ void CMultiSipManager::releaseMemoryPool()
     pj_pool_safe_release(&m_pPool);
     pj_caching_pool_destroy(&m_cp);
 }
+
+QString CMultiSipManager::createDstUri(QString t_callNumber, QString accountUri)
+{
+    if(t_callNumber.isEmpty() || accountUri.isEmpty())
+    {
+        qDebug() << "robin:createDstUri inputs have one empty:" << t_callNumber << accountUri;
+        return "";
+    }
+    // accountUri 有两种形式: "sip:account@serviceprovider" or "\"Display Name\" <sip:account@provider>"
+    //我们组装返回的结果是: sip:callNumber@serviceprovider
+    int t_beginIndex = accountUri.indexOf("@");
+    int t_endIndex = -1;
+    t_endIndex = accountUri.indexOf(">");
+    if(-1 == t_endIndex)
+    {
+       t_endIndex = accountUri.length();
+    }
+    //取出serviceprovider
+    QString t_serviceprovider = accountUri.mid(t_beginIndex+1, t_endIndex-t_beginIndex);
+    QString t_outStr = QString("sip:%1@%2").arg(t_callNumber).arg(t_serviceprovider);
+    return t_outStr;
+}
 //线程注册
 static pj_status_t pjcall_thread_register(void)
 {
@@ -573,7 +598,12 @@ void CMultiSipManager::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
     qDebug()<<"robin:on_reg_state2:acc_id:"<< acc_id <<",renew="<<info->renew<<",cbparam_code="<<t_code;
     // <<info->cbparam->rdata->msg_info.cid->id.ptr;
     QString t_info = QString("robin:on_reg_state2:acc_id:%1,renew=%2,cbparam_code=%3").arg(acc_id).arg(info->renew).arg(t_code);
+    if(200 == t_code)
+    {
+       t_info += " registration success";
+    }
     emit CMultiSipManager::GetInstance()->sigSipInfo(t_info);
+
     int i = 0;
     i++;
 
