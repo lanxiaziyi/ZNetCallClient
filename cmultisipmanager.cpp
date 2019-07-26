@@ -25,6 +25,10 @@ CMultiSipManager::~CMultiSipManager()
     //注销所有的
     toUnRegisterAllAccounts();
 
+    //内存池的释放
+
+    releaseMemoryPool();
+
     pj_status_t status;
     status = pjsua_destroy();
 
@@ -78,15 +82,39 @@ void CMultiSipManager::SipInit()
 
 
 
-    //初始化传输方式的相关信息
-    pjsua_transport_config cfg;
-    pjsua_transport_config_default(&cfg);
-    cfg.port = 0;//自己随便绑定个接口
-    status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &cfg, nullptr);
+    //初始化传输方式的相关信息 ，我们创建三种,至于使用哪一种，由程序自己决定
+    pjsua_transport_config udp_cfg;
+    pjsua_transport_id udp_id;
+    pjsua_transport_config_default(&udp_cfg);
+    udp_cfg.port = 0;//自己随便绑定个接口
+    status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
     if (status != PJ_SUCCESS)
     {
         qDebug()<<"robin:Error in pjsua_transport_create";
     }
+
+    pjsua_transport_config tcp_cfg;
+    pjsua_transport_id tcp_id;
+    pjsua_transport_config_default(&tcp_cfg);
+    tcp_cfg.port = 0;//自己随便绑定个接口
+    status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, &tcp_id);
+    if (status != PJ_SUCCESS)
+    {
+        qDebug()<<"robin:Error in pjsua_transport_create tcp";
+    }
+
+    pjsua_transport_config tls_cfg;
+    pjsua_transport_id tls_id;
+    pjsua_transport_config_default(&tls_cfg);
+    tls_cfg.port = 0;//自己随便绑定个接口
+    status = pjsua_transport_create(PJSIP_TRANSPORT_TLS, &tls_cfg, &tls_id);
+    if (status != PJ_SUCCESS)
+    {//TLS 这个需要freeswitch 那里的配合;而且一旦使用TLS，用wireshark就不能分析抓到的包了
+     //TLS 支持需要pjsip编译的时候添加，我写在文档中了。其实不支持也没关系，至少我们客户端没用到
+        qDebug()<<"robin:Error in pjsua_transport_create tcp";
+    }
+
+
 
     status = pjsua_start();
     if (status != PJ_SUCCESS)
@@ -94,13 +122,19 @@ void CMultiSipManager::SipInit()
         qDebug()<<"robin:Error in pjsua_start";
     }
 
+    //创建内存池
+    initMemoryPool();
+
     //设置音频编码优先级
     resetAudioCodecPriority();
+
+
+
 }
 
 void CMultiSipManager::testRegisterAccount()
 {
-    pj_status_t status;
+    pj_status_t t_status;
     pjsua_acc_config acc_cfg;
 
     pjsua_acc_config_default(&acc_cfg);
@@ -114,14 +148,41 @@ void CMultiSipManager::testRegisterAccount()
     cfg.publish_enabled = PJ_TRUE;
     */
 
-    acc_cfg.id = pj_str((char *)"sip:1031@192.168.2.215:2060");
-    acc_cfg.reg_uri = pj_str((char *)"sip:192.168.2.215:2060");
-    acc_cfg.cred_count = 4;//这里意思，是
+    acc_cfg.id = pj_str((char *)"\"SID2018082382631479\" sip:1031@192.168.2.215:2060");
+    acc_cfg.reg_uri = pj_str((char *)"sip:1031");//pj_str((char *)"sip:192.168.2.215:2060");
+    acc_cfg.cred_count = 4;//这里意思，是认证信息的数量，
     acc_cfg.cred_info[0].realm = pj_str((char *)"*");//必须是*，原因看字段注释
     acc_cfg.cred_info[0].scheme = pj_str((char *)"digest");
     acc_cfg.cred_info[0].username = pj_str((char *)"1031");
     acc_cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
-    acc_cfg.cred_info[0].data = pj_str((char *)"123456");
+    acc_cfg.cred_info[0].data = pj_str((char *)"1234");//密码
+
+    //我们自己还添加了一些奇奇怪怪的字段
+    //acc_cfg.id 添加了一个SID字段.这里添加的字段，本来应该是“显示名称”的，后来，我们用这个作为"账号拆分"的id识别码用了。
+    QString t_strUriParams = ";sid=";
+    t_strUriParams += "SID2018082382631479";
+    std::string t_uriParams = t_strUriParams.toStdString();
+    acc_cfg.contact_uri_params =  pj_str((char *)t_uriParams.c_str());
+    //我觉得proxy这个不用改，这个值跟domain一样
+    //acc_cfg.proxy[0];
+    // use_srtp ,是否使用加密传输。原先客户端是用了PJMEDIA_SRTP_DISABLED
+    acc_cfg.use_srtp = PJMEDIA_SRTP_DISABLED;
+    acc_cfg.ice_cfg_use = PJSUA_ICE_CONFIG_USE_CUSTOM;
+    acc_cfg.ice_cfg.enable_ice = PJ_FALSE;
+    //acc_cfg.rtp_cfg.public_addr;//这个字段原先客户端设置了空
+    //acc_cfg.allow_via_rewrite;//这个字段使用默认值就好 //sip头请求中,via里面的地址是否允许修改，是本机的ip还是经过nat映射后公网中的ip https://blog.csdn.net/gyy_2046/article/details/50071019
+    acc_cfg.allow_sdp_nat_rewrite = acc_cfg.allow_via_rewrite;//主要都是nat穿网相关的
+    acc_cfg.allow_contact_rewrite = PJ_TRUE;
+    acc_cfg.publish_enabled = PJ_FALSE;
+    //acc_cfg.transport_id;//这个参数客户端原先的也不用设置
+
+
+    //这里必须要要写成这样才能设置tcp传输模式//https://trac.pjsip.org/repos/wiki/Using_SIP_TCP
+    //这里需要添加一个变量
+    acc_cfg.proxy[acc_cfg.proxy_cnt++] =  pj_str((char *)"sip:192.168.2.215:2060;transport=tcp");
+
+
+
 
     acc_cfg.cred_info[1].realm = pj_str((char *)"*");//必须是*，原因看字段注释
     acc_cfg.cred_info[1].scheme = pj_str((char *)"digest");
@@ -139,11 +200,11 @@ void CMultiSipManager::testRegisterAccount()
     acc_cfg.cred_info[3].scheme = pj_str((char *)"digest");
     acc_cfg.cred_info[3].username = pj_str((char *)"1031");
     acc_cfg.cred_info[3].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
-    acc_cfg.cred_info[3].data = pj_str((char *)"1234");
+    acc_cfg.cred_info[3].data = pj_str((char *)"123456");
 
     pjsua_acc_id acc_id;//返回当前分配的account_id
-    status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc_id);
-    if (status != PJ_SUCCESS)
+    t_status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc_id);
+    if (t_status != PJ_SUCCESS)
     {
         qDebug()<<"robin:Error in pjsua_acc_add";
     }
@@ -225,6 +286,32 @@ void CMultiSipManager::toUnRegisterAllAccounts()
        }
 
     }
+}
+
+void CMultiSipManager::customCallOutHeader(pjsua_msg_data *msg_data, QMap<QString, QString> &customHeaderInfoMap)
+{
+
+    for (auto i = customHeaderInfoMap.begin();i != customHeaderInfoMap.end();i++)
+    {
+        std::string t_keyStr = i.key().toStdString();
+        std::string t_valueStr = i.value().toStdString();
+        pj_str_t hname, hvalue;
+
+        char cKey[256] = {0};
+        strncpy_s(cKey,sizeof(cKey),t_keyStr.c_str(),t_keyStr.length());
+        char cValue[256] = {0};
+        strncpy_s(cValue,sizeof(cValue),t_valueStr.c_str(),t_valueStr.length());
+        hname  = pj_str(cKey);
+        hvalue = pj_str(cValue);
+
+        pjsip_generic_string_hdr *t_oneHeaderItem = nullptr;
+        t_oneHeaderItem = pjsip_generic_string_hdr_create(m_pPool, &hname, &hvalue);
+        pj_list_push_back(&msg_data->hdr_list,t_oneHeaderItem);
+    }
+
+
+
+
 }
 
 void CMultiSipManager::toHangUpCall(pjsua_call_id callId)
@@ -330,7 +417,7 @@ void CMultiSipManager::toAnswerCall(pjsua_call_id callId)
     pjsua_call_answer2(callId,&call_setting,200,nullptr,nullptr);
 }
 
-void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri)
+void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri,QMap<QString,QString> customHeaderInfoMap)
 {
     if(-1 == accoundId
             || 0 == targetUri.length())
@@ -338,6 +425,26 @@ void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri)
         qDebug()<<"robin:toMakeACall input error:"<<accoundId<<targetUri;
         return;
     }
+
+    //这里要
+    pj_bool_t t_bAccValid = pjsua_acc_is_valid(accoundId);
+    if(!t_bAccValid)
+    {
+        qDebug()<<"robin:acc id is not valid";
+        return;
+    }
+    //组装sip的呼叫url。也就是
+    //1,从:  18612345678 转化成 类型 sip:18612345678@192.168.2.215:2060 的样子
+    //2,从: 1234 转化成 类型 sip:1234@192.168.2.215:2060 的样子
+    pj_status_t t_status;
+    pjsua_acc_info t_accInfo;
+    t_status = pjsua_acc_get_info(accoundId,&t_accInfo);
+
+    QString t_accountUrl = t_accInfo.acc_uri.ptr;
+
+
+
+
     pjsua_call_id call_id = -1;
     pjsua_call_setting call_setting;
     pjsua_call_setting_default(&call_setting);
@@ -349,13 +456,14 @@ void CMultiSipManager::toMakeACall(pjsua_acc_id accoundId, QString targetUri)
 
     strncpy_s(uri,sizeof(uri),t_targetStr.c_str(),t_targetStr.length());
     pj_str_t uri2 = pj_str(uri);
-    pjsua_msg_data msg_data;
-    pjsua_msg_data_init(&msg_data);
+    pjsua_msg_data msg_data; //主要在这里添加自定义的头部
+    pjsua_msg_data_init(&msg_data);//
+    customCallOutHeader(&msg_data,customHeaderInfoMap);//添加
 
-    pj_status_t t_status;
+
     t_status = pjsua_call_make_call(accoundId, &uri2 ,&call_setting,nullptr,&msg_data,&call_id);
     if(PJ_SUCCESS != t_status)
-    {
+    {//这里返回的错误码的意义，需要到pjsip的源码中去搜（我没找到对应的接口）
         qDebug()<<"robin:pjsua_call_make_call failed,"<<t_status;
     }
 
@@ -396,6 +504,19 @@ int CMultiSipManager::actualhangUpCall(pjsua_call_id callId, pjsip_inv_session *
 
 
    return 0;
+}
+
+void CMultiSipManager::initMemoryPool()
+{
+    pj_caching_pool_init(&m_cp, &pj_pool_factory_default_policy, 0);
+    m_pPool = pj_pool_create(&m_cp.factory, "header", 1000,
+                          1000, nullptr);
+}
+
+void CMultiSipManager::releaseMemoryPool()
+{
+    pj_pool_safe_release(&m_pPool);
+    pj_caching_pool_destroy(&m_cp);
 }
 //线程注册
 static pj_status_t pjcall_thread_register(void)

@@ -62,5 +62,7 @@ void TestMainDialog::on_pushButton_callOut_clicked()
     QString t_accountId = ui->lineEdit_callOutAccountId->text();
     QString t_callOutNumber = ui->lineEdit_callOutNumber->text();
 
-    CMultiSipManager::GetInstance()->toMakeACall(t_accountId.toInt(),t_callOutNumber);
+    QMap<QString,QString> t_customMapHeader;
+    t_customMapHeader.insert("X-CallHead","1656339602313745");
+    CMultiSipManager::GetInstance()->toMakeACall(t_accountId.toInt(),t_callOutNumber,t_customMapHeader);
 }

@@ -1,2 +1,5 @@
 NetCallClient.pro.user
 NetCallClient.pro.user.4.9-pre1
+output_bin/NetCallClient.pdb
+output_bin/NetCallClient.ilk
+output_bin/NetCallClient.exe

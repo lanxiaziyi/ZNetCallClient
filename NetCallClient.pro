@@ -11,6 +11,7 @@ QT += multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = NetCallClient
+DESTDIR = $$PWD/output_bin
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -76,6 +77,7 @@ INCLUDEPATH += $$PWD/sipLib/pjsip/include \
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Debug-Dynamic
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Release-Dynamic
 
+LIBS += -L'D:\OpenSSL-Win32\lib' -llibeay32 -lssleay32
 LIBS += -lWs2_32 -lOle32 -lgdi32
 
 # Default rules for deployment.
