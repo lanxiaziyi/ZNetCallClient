@@ -3,6 +3,8 @@
 #include <QSplashScreen>
 #include <QThread>
 #include <QDebug>
+#include <QTextCodec>
+
 
 #include "zmainwidget.h"
 #include "testmaindialog.h"
@@ -18,6 +20,11 @@ int main(int argc, char *argv[])
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+
+   // QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));    //设置中文显示
+
+
+
 
     QApplication a(argc, argv);
 

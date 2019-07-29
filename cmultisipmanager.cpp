@@ -55,7 +55,6 @@ void CMultiSipManager::SipInit()
     status = pjsua_create(); //初始化的时候用的，程序退出的时候必须调用 pjsua_destroy
     if (status != PJ_SUCCESS)
     {
-        //error_exit("Error in pjsua_create()", status);
         qDebug()<<"robin:pjsua_create failed";
     }
 
@@ -259,10 +258,21 @@ void CMultiSipManager::testMakeACall()
 int CMultiSipManager::testFunc()
 {
    // pjsua_enum_accs()
+    qDebug()<<"robin:testFunc:";
+    pj_status_t t_status;
+    pjmedia_aud_dev_info audioDevInfo[64];
+    unsigned t_count = 64;
+    t_status = pjsua_enum_aud_devs(audioDevInfo,&t_count);
+    for(unsigned i = 0; i < t_count;i++)
+    {
+        qDebug()<<"dev Name:"<<QString::fromLocal8Bit(audioDevInfo[i].name);
+    }
 
 
+   // pj::AudioDevInfoVector2 t_audioDevVector =  enumDev2();
 
 
+    int t_i = 0;
 
     return 0;
 }
@@ -583,6 +593,8 @@ int CMultiSipManager::resetAudioCodecPriority()
 
 void CMultiSipManager::on_reg_started2(pjsua_acc_id acc_id, pjsua_reg_info *info)
 {
+    // 一般只要注册函数执行了，这里就会执行一下。不用作是否已经注册的判断。因为作了判断反而有些情况不好处理
+
      qDebug()<<"robin:on_reg_started:acc_id:"<< acc_id <<",renew:"<< info->renew;
 
      QString t_info = QString("robin:on_reg_started2:acc_id:%1,renew=%2").arg(acc_id).arg(info->renew);
@@ -592,6 +604,9 @@ void CMultiSipManager::on_reg_started2(pjsua_acc_id acc_id, pjsua_reg_info *info
 
 void CMultiSipManager::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
 {
+    //先查看，是不是目前这个账户已经登录了
+
+
     int t_code = info->cbparam->code;
     // code 为 200代表成功了
     //info->renew 如果为0代表这是注销返回的消息，非0代表是注册返回的消息
@@ -613,8 +628,8 @@ void CMultiSipManager::on_call_state(pjsua_call_id call_id, pjsip_event *e)
 {
     pjsua_call_info ci;
     pjsua_call_get_info(call_id, &ci);
-    qDebug()<<"robin:on_call_state:call_id:"<<call_id<<",state_text:"<<ci.state_text.ptr;
-    QString t_info = QString("robin:on_call_state:call_id:%1,state_text:%2").arg(call_id).arg(ci.state_text.ptr);
+    qDebug()<<"robin:on_call_state:call_id:"<<call_id<<",state_text:"<<ci.state_text.ptr<<",acc_id:"<<ci.acc_id;
+    QString t_info = QString("robin:on_call_state:call_id:%1,state_text:%2,acc_id:%3").arg(call_id).arg(ci.state_text.ptr).arg(ci.acc_id);
     emit CMultiSipManager::GetInstance()->sigSipInfo(t_info);
 
 

@@ -29,8 +29,8 @@ void TestMainDialog::slotToRunTestFunc()
 {
     qDebug()<<"robin:run TestMainDialog::slotToRunTestFunc";
    // CMultiSipManager::GetInstance()->testFunc();
-
-    CMultiSipManager::GetInstance()->resetAudioCodecPriority();
+   CMultiSipManager::GetInstance()->testFunc();
+    //CMultiSipManager::GetInstance()->resetAudioCodecPriority();
 }
 
 void TestMainDialog::on_pushButton_testRegister_clicked()

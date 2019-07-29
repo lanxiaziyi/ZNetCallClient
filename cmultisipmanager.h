@@ -5,6 +5,7 @@
 #include <QMap>
 #include <pjsua-lib/pjsua.h>
 #include <pjsua-lib/pjsua_internal.h>
+#include <pjsua2.hpp>
 
 class CMultiSipManager : public QObject
 {
