@@ -11,7 +11,7 @@ QT += multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = NetCallClient
-DESTDIR = $$PWD/output_bin
+
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -28,10 +28,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    CollectAndSendClientInfo/GetRegValue.cpp \
+    CollectAndSendClientInfo/ZhBehaviorAnalytics.cpp \
+    CollectAndSendClientInfo/ZhCheckNetworkQuality.cpp \
+    CollectAndSendClientInfo/ZhClientSoftwareInfo.cpp \
+    CollectAndSendClientInfo/ZhCollectAndSendClientInfo.cpp \
+    CollectAndSendClientInfo/ZhHttpsClient.cpp \
+    CollectAndSendClientInfo/ZhWindowsDeviceInfo.cpp \
     callingdialognumberpanel.cpp \
     cmultisipmanager.cpp \
     dialognumberpanel.cpp \
         main.cpp \
+    ping.cpp \
     sipaccountinfo.cpp \
     switchpanelwidget.cpp \
     testmaindialog.cpp \
@@ -43,9 +51,17 @@ SOURCES += \
     zmainwidget.cpp
 
 HEADERS += \
+    CollectAndSendClientInfo/GetRegValue.h \
+    CollectAndSendClientInfo/ZhBehaviorAnalytics.h \
+    CollectAndSendClientInfo/ZhCheckNetworkQuality.h \
+    CollectAndSendClientInfo/ZhClientSoftwareInfo.h \
+    CollectAndSendClientInfo/ZhCollectAndSendClientInfo.h \
+    CollectAndSendClientInfo/ZhHttpsClient.h \
+    CollectAndSendClientInfo/ZhWindowsDeviceInfo.h \
     callingdialognumberpanel.h \
     cmultisipmanager.h \
     dialognumberpanel.h \
+    ping.h \
     publicstruct.h \
     sipaccountinfo.h \
     switchpanelwidget.h \
@@ -72,13 +88,30 @@ INCLUDEPATH += $$PWD/sipLib/pjsip/include \
                 $$PWD/sipLib/pjnath/include \
                 $$PWD/sipLib/pjmedia/include \
                 $$PWD/sipLib/pjlib-util/include \
-                $$PWD/sipLib/pjlib/include
+                $$PWD/sipLib/pjlib/include \
+                $$PWD/libcurl-vc15-x86-debug-dll-ipv6-sspi-winssl/include \
+                $$PWD/jsoncpp/include
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Debug-Dynamic
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Release-Dynamic
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Debug-Dynamic
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Release-Dynamic
+win32{
+    CONFIG(release, debug|release){
+        DESTDIR = $$PWD/output_debug_bin
+        LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Release-Dynamic \
+                -L$$PWD/libcurl-vc15-x86-release-dll-ipv6-sspi-winssl\lib -llibcurl \
+                -L$$PWD/jsoncpp/lib/release -llib_json
+    }
+    else:CONFIG(debug, debug|release){
+        DESTDIR = $$PWD/output_release_bin
+        LIBS += -L$$PWD/sipLib/lib -llibpjproject-i386-Win32-vc14-Debug-Dynamic \
+                -L$$PWD/libcurl-vc15-x86-debug-dll-ipv6-sspi-winssl\lib -llibcurl_debug \
+                -L$$PWD/jsoncpp/lib/debug -llib_json
+    }
+}
+
 
 LIBS += -L'D:\OpenSSL-Win32\lib' -llibeay32 -lssleay32
-LIBS += -lWs2_32 -lOle32 -lgdi32
+LIBS += -lWs2_32 -lOle32 -lgdi32 -lversion
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -89,4 +122,5 @@ RESOURCES += \
     resource.qrc
 
 DISTFILES += \
+    CollectAndSendClientInfo/收集客户端的相关信息.txt \
     README.md
